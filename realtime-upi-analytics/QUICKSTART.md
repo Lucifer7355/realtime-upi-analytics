@@ -12,9 +12,22 @@ docker-compose --version
 # Verify Python
 python --version  # Should be 3.12+
 
+# Verify Java (required for Flink JAR)
+java -version  # Should be Java 11 or higher
+
+# Verify Maven (required for building Flink JAR)
+mvn -version  # Should be Maven 3.6+
+
 # Verify Git
 git --version
 ```
+
+**Required Software**:
+- Docker Desktop (v4.0+)
+- Python 3.12+
+- **Java 11+** (for building Flink JAR)
+- **Maven 3.6+** (for building Flink JAR)
+- Git
 
 ## Step-by-Step Setup
 
@@ -121,18 +134,36 @@ mvn clean package
 ### 8. Run dbt Models
 
 ```bash
-cd dbt
+cd realtime-upi-analytics/dbt
 
 # Install dbt
 pip install dbt-postgres
 
 # Configure (create ~/.dbt/profiles.yml)
-# See dbt/README.md for configuration
+# On Windows: C:\Users\<username>\.dbt\profiles.yml
+# On Linux/Mac: ~/.dbt/profiles.yml
+
+# Create profiles.yml with this content:
+cat > ~/.dbt/profiles.yml << 'EOF'
+realtime_upi_analytics:
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: postgres
+      password: postgres
+      dbname: upi
+      schema: public
+  target: dev
+EOF
 
 # Run models
 dbt run
 dbt test
 ```
+
+**Note**: On Windows, create the file manually at `C:\Users\<YourUsername>\.dbt\profiles.yml`
 
 ### 9. Configure Grafana
 

@@ -196,7 +196,9 @@ realtime-upi-analytics/
 ### Prerequisites
 
 - **Docker** & **Docker Compose** (v2.0+)
-- **Python 3.12+** (for local development)
+- **Python 3.12+** (for data generators and consumers)
+- **Java 11+** (for building Flink JAR)
+- **Maven 3.6+** (for building Flink JAR)
 - **Git** (for cloning)
 
 ### Step 1: Clone the Repository

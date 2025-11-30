@@ -14,7 +14,17 @@ Complete step-by-step guide to set up and run the Real-Time UPI Analytics Platfo
    - Download: https://www.python.org/downloads/
    - Verify: `python --version`
 
-3. **Git**
+3. **Java** (11 or higher) - **Required for Flink JAR**
+   - Download: https://adoptium.net/ or https://www.oracle.com/java/technologies/downloads/
+   - Verify: `java -version`
+   - **Note**: Java 11, 17, or 21 recommended
+
+4. **Maven** (3.6+) - **Required for building Flink JAR**
+   - Download: https://maven.apache.org/download.cgi
+   - Verify: `mvn -version`
+   - **Note**: Maven is used to build the Flink Java job
+
+5. **Git**
    - Download: https://git-scm.com/downloads
    - Verify: `git --version`
 
