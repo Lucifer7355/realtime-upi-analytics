@@ -107,11 +107,15 @@ python src/data_generator/upi_event_producer.py
 python src/consumers/postgres_sink.py
 ```
 
-**Terminal 3 - Submit Flink Job**:
+**Terminal 3 - Build and Submit Flink Job**:
 ```bash
-# Via Flink UI (Recommended)
+# Build the Flink JAR
+cd FlinkJobs
+mvn clean package
+
+# Submit via Flink UI (Recommended)
 # Navigate to http://localhost:8081
-# Submit New Job → Upload flink_upi_job.py
+# Submit New Job → Upload FlinkJobs/target/FlinkJobs-1.0-SNAPSHOT.jar
 ```
 
 ### 8. Run dbt Models

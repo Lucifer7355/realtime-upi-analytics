@@ -190,27 +190,46 @@ This consumer:
 - Writes to PostgreSQL `raw_upi_transactions` table
 - Uses batch inserts (20 records per batch)
 
-### Step 10: Submit Flink Job
+### Step 10: Build and Submit Flink Job
 
-#### Option A: Via Flink UI (Recommended)
+#### Step 10a: Build the Flink JAR
+
+```bash
+# Navigate to FlinkJobs directory
+cd FlinkJobs
+
+# Build the JAR (requires Java 11+ and Maven)
+mvn clean package
+
+# This creates: target/FlinkJobs-1.0-SNAPSHOT.jar
+```
+
+**Prerequisites for Building**:
+- Java 11 or higher
+- Maven 3.6+
+
+#### Step 10b: Submit Flink Job
+
+**Option A: Via Flink UI (Recommended)**
 
 1. Navigate to http://localhost:8081
 2. Click "Submit New Job"
-3. Upload JAR or use the Python job
-4. Configure:
-   - Entry Class: (if using JAR)
-   - Program Arguments: (if needed)
+3. Upload `FlinkJobs/target/FlinkJobs-1.0-SNAPSHOT.jar`
+4. Click "Submit"
+5. Monitor job status in the Flink UI
 
-#### Option B: Via Flink CLI
+**Option B: Via Flink CLI**
 
 ```bash
-# Copy Flink job to container
-docker cp src/stream_processing/flink_upi_job.py flink-jobmanager:/opt/flink-jobs/
+# Copy JAR to Flink container
+docker cp FlinkJobs/target/FlinkJobs-1.0-SNAPSHOT.jar flink-jobmanager:/opt/flink/jobs/
 
-# Submit job (example - adjust based on your setup)
+# Submit job
 docker exec -it flink-jobmanager flink run \
-  -py /opt/flink-jobs/flink_upi_job.py
+  /opt/flink/jobs/FlinkJobs-1.0-SNAPSHOT.jar
 ```
+
+**Note**: Flink TaskManager requires Java JAR files. The Python scripts in `src/stream_processing/` are for reference only.
 
 ### Step 11: Run dbt Models
 

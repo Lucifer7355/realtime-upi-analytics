@@ -33,22 +33,23 @@ The platform follows a **hybrid architecture** combining:
 
 #### Apache Flink
 - **Purpose**: Real-time stream processing and data cleaning
-- **Job Type**: Table API / SQL
+- **Implementation**: Java (JAR file)
+- **Job Class**: `org.example.UpiFlinkToPostgresJob`
 - **Processing**:
-  - Consumes from Kafka topic
-  - Applies transformations (filtering, enrichment)
-  - Writes to PostgreSQL sink
+  - Consumes from Kafka topic using Kafka Source connector
+  - Applies data validation and transformations
+  - Writes to PostgreSQL using JDBC sink
 
 **Flink Job Pipeline**:
 ```
-Kafka Source → Data Cleaning → Deduplication → PostgreSQL Sink
+Kafka Source → JSON Parsing → Data Validation → Data Cleaning → PostgreSQL JDBC Sink
 ```
 
 **Key Operations**:
-- **Filtering**: Remove invalid transactions
-- **Enrichment**: Add derived fields (e.g., transaction category)
-- **Windowing**: Time-based aggregations (if needed)
-- **State Management**: Deduplication using Flink state
+- **Validation**: Filter invalid amounts, statuses, and null fields
+- **Data Cleaning**: Convert ISO timestamps to SQL TIMESTAMP
+- **Batch Inserts**: Optimized batch writes (20 records per batch)
+- **Error Handling**: Logs invalid records and continues processing
 
 ### 3. Batch Processing Layer
 

@@ -255,19 +255,32 @@ python src/data_generator/upi_event_producer.py
 
 This will start generating UPI transaction events to Kafka topic `upi_transactions`.
 
-### Step 6: Start Consumers (Optional)
-
-In separate terminals:
+### Step 6: Build and Submit Flink Job
 
 ```bash
-# Start PostgreSQL sink consumer
-python src/consumers/postgres_sink.py
+# Build the Flink JAR
+cd FlinkJobs
+mvn clean package
 
-# Submit Flink job (via Flink UI or CLI)
-# Navigate to http://localhost:8081 → Submit New Job
+# The JAR will be at: FlinkJobs/target/FlinkJobs-1.0-SNAPSHOT.jar
 ```
 
-### Step 7: Run dbt Models
+**Submit via Flink UI**:
+1. Navigate to http://localhost:8081
+2. Click "Submit New Job"
+3. Upload `FlinkJobs/target/FlinkJobs-1.0-SNAPSHOT.jar`
+4. Click "Submit"
+
+### Step 7: Start PostgreSQL Sink Consumer (Optional)
+
+In a separate terminal:
+
+```bash
+# Start PostgreSQL sink consumer (for raw data backup)
+python src/consumers/postgres_sink.py
+```
+
+### Step 8: Run dbt Models
 
 ```bash
 cd dbt
@@ -275,7 +288,7 @@ dbt run
 dbt test
 ```
 
-### Step 8: Access Dashboards
+### Step 9: Access Dashboards
 
 - **Grafana**: http://localhost:3000
   - Import dashboard from `docker/grafana/upi_dashboard_full.json`
@@ -288,8 +301,8 @@ dbt test
 
 1. **Event Generation**: `upi_event_producer.py` generates UPI transaction events
 2. **Kafka Ingestion**: Events published to `upi_transactions` topic
-3. **Stream Processing**: Flink job consumes, cleans, and enriches events
-4. **Storage**: Cleaned data written to `clean_upi_transactions` table
+3. **Stream Processing**: Flink Java job (`UpiFlinkToPostgresJob`) consumes, validates, cleans, and enriches events
+4. **Storage**: Cleaned data written to `clean_upi_transactions` table via JDBC sink
 5. **Visualization**: Grafana queries PostgreSQL for real-time dashboards
 
 ### Batch Flow
@@ -308,7 +321,7 @@ dbt test
 - Enables data lineage and debugging
 
 ### 2. **Stream + Batch Processing (Lambda Architecture)**
-- **Flink** handles real-time processing (low latency)
+- **Flink (Java)** handles real-time processing (low latency) with data validation
 - **Airflow** handles batch aggregations (high accuracy)
 - Best of both worlds for analytics
 
