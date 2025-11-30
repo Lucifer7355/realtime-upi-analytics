@@ -66,13 +66,13 @@ def aggregate_merchant_metrics():
             merchant, date, total_txns, amount
         )
         SELECT
-            payee AS merchant,
+            SUBSTRING(payee, 1, 50) AS merchant,  -- Ensure it fits VARCHAR(50)
             CURRENT_DATE,
             COUNT(*) AS total_txns,
             SUM(amount) AS amount
         FROM clean_upi_transactions
         WHERE DATE(event_time) = CURRENT_DATE
-        GROUP BY payee
+        GROUP BY SUBSTRING(payee, 1, 50)
         ON CONFLICT (merchant, date) DO UPDATE SET
             total_txns = EXCLUDED.total_txns,
             amount = EXCLUDED.amount;

@@ -67,7 +67,7 @@ cleaned_data = table_env.sql_query("""
         payee,
         amount,
         status,
-        TO_TIMESTAMP(`timestamp`) AS event_time
+        TO_TIMESTAMP(`timestamp`, 'yyyy-MM-dd''T''HH:mm:ss.SSSSSS''Z''') AS event_time
     FROM upi_transactions_source
     WHERE 
         amount > 0 
@@ -91,7 +91,7 @@ table_env.execute_sql("""
         payee,
         amount,
         status,
-        TO_TIMESTAMP(`timestamp`) AS event_time
+        CAST(`timestamp` AS TIMESTAMP) AS event_time
     FROM upi_transactions_source
     WHERE 
         amount > 0 

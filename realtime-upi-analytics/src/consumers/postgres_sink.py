@@ -35,13 +35,14 @@ def connect_to_postgres():
 conn = connect_to_postgres()
 cursor = conn.cursor()
 
-# Ensure table exists
+# Ensure table exists (matches init.sql schema)
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS raw_upi_transactions (
+    id SERIAL PRIMARY KEY,
     txn_id VARCHAR(50),
-    payer VARCHAR(50),
-    payee VARCHAR(50),
-    amount NUMERIC,
+    payer VARCHAR(100),
+    payee VARCHAR(100),
+    amount DECIMAL,
     status VARCHAR(20),
     timestamp TIMESTAMP
 );
