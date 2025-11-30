@@ -1,0 +1,61 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw data tables from source systems"
+    database: upi
+    schema: public
+    tables:
+      - name: raw_upi_transactions
+        description: "Raw UPI transaction events from Kafka consumer"
+        columns:
+          - name: id
+            description: "Auto-incrementing primary key"
+          - name: txn_id
+            description: "Unique transaction identifier"
+            tests:
+              - not_null
+          - name: payer
+            description: "Payer UPI ID"
+          - name: payee
+            description: "Payee/merchant UPI ID"
+          - name: amount
+            description: "Transaction amount"
+            tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+          - name: status
+            description: "Transaction status (SUCCESS, FAILED, PENDING)"
+          - name: timestamp
+            description: "Transaction timestamp"
+            tests:
+              - not_null
+      
+      - name: clean_upi_transactions
+        description: "Cleaned and processed UPI transactions from Flink"
+        columns:
+          - name: txn_id
+            description: "Unique transaction identifier (Primary Key)"
+            tests:
+              - not_null
+              - unique
+          - name: payer
+            description: "Payer UPI ID"
+          - name: payee
+            description: "Payee/merchant UPI ID"
+          - name: amount
+            description: "Transaction amount"
+            tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+          - name: status
+            description: "Transaction status (SUCCESS, FAILED, PENDING)"
+          - name: event_time
+            description: "Event timestamp"
+            tests:
+              - not_null
+

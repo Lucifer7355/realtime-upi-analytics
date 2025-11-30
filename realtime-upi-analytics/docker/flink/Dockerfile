@@ -11,5 +11,9 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 # Install required Python libs
 RUN pip3 install kafka-python psycopg2-binary
 
-# Copy Kafka connector JAR
+# Copy connector JARs (Kafka + JDBC for PostgreSQL)
 COPY jars/*.jar /opt/flink/lib/
+
+# Note: JDBC connector JAR should be downloaded and placed in jars/ directory
+# Download from: https://repo1.maven.org/maven2/org/apache/flink/flink-connector-jdbc/
+# Example: flink-connector-jdbc-1.17.0.jar

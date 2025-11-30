@@ -2,19 +2,114 @@ version: 2
 
 models:
   - name: stg_upi_transactions
+    description: "Staging model for UPI transactions with data quality checks and enrichment"
     columns:
       - name: txn_id
-        tests: [not_null]
+        description: "Unique transaction identifier"
+        tests: 
+          - not_null
+          - unique
       - name: payer
+        description: "Payer UPI ID"
+        tests:
+          - not_null
       - name: payee
+        description: "Payee/merchant UPI ID"
+        tests:
+          - not_null
       - name: amount
+        description: "Transaction amount"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
       - name: status
+        description: "Transaction status"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['SUCCESS', 'FAILED', 'PENDING']
       - name: timestamp
+        description: "Transaction timestamp"
+        tests:
+          - not_null
+      - name: txn_date
+        description: "Transaction date (derived)"
+        tests:
+          - not_null
+      - name: payer_bank
+        description: "Bank extracted from payer UPI ID"
+      - name: merchant_id
+        description: "Merchant ID extracted from payee"
+      - name: is_invalid_amount
+        description: "Flag for invalid amount"
+      - name: is_invalid_status
+        description: "Flag for invalid status"
 
   - name: fact_upi_aggregates
+    description: "Daily aggregated UPI transaction metrics"
     columns:
       - name: txn_date
-        tests: [not_null]
+        description: "Transaction date"
+        tests: 
+          - not_null
+          - unique
       - name: total_txns
+        description: "Total number of transactions"
+        tests:
+          - not_null
       - name: total_amount
+        description: "Total transaction amount"
+        tests:
+          - not_null
       - name: success_rate
+        description: "Success rate (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      - name: success_txns
+        description: "Number of successful transactions"
+      - name: failed_txns
+        description: "Number of failed transactions"
+      - name: pending_txns
+        description: "Number of pending transactions"
+      - name: avg_txn_amount
+        description: "Average transaction amount"
+      - name: min_txn_amount
+        description: "Minimum transaction amount"
+      - name: max_txn_amount
+        description: "Maximum transaction amount"
+      - name: unique_payers
+        description: "Number of unique payers"
+      - name: unique_payees
+        description: "Number of unique payees"
+      - name: unique_banks
+        description: "Number of unique banks"
+
+  - name: dim_merchants
+    description: "Dimension table for merchants with aggregated metrics"
+    columns:
+      - name: merchant_id
+        description: "Merchant identifier"
+        tests:
+          - not_null
+          - unique
+      - name: first_transaction_date
+        description: "Date of first transaction"
+      - name: last_transaction_date
+        description: "Date of last transaction"
+      - name: active_days
+        description: "Number of days with transactions"
+      - name: total_transactions
+        description: "Total number of transactions"
+      - name: total_revenue
+        description: "Total revenue from merchant"
+      - name: avg_transaction_amount
+        description: "Average transaction amount"
+      - name: successful_transactions
+        description: "Number of successful transactions"
+      - name: success_rate
+        description: "Success rate (0-1)"

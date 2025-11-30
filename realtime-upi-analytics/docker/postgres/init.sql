@@ -37,3 +37,26 @@ CREATE TABLE IF NOT EXISTS merchant_upi_summary (
     amount DOUBLE PRECISION,
     PRIMARY KEY (merchant, date)
 );
+
+-- ============================================
+-- PERFORMANCE INDEXES
+-- ============================================
+
+-- Indexes for raw_upi_transactions
+CREATE INDEX IF NOT EXISTS idx_raw_upi_txn_id ON raw_upi_transactions(txn_id);
+CREATE INDEX IF NOT EXISTS idx_raw_upi_timestamp ON raw_upi_transactions(timestamp);
+CREATE INDEX IF NOT EXISTS idx_raw_upi_status ON raw_upi_transactions(status);
+CREATE INDEX IF NOT EXISTS idx_raw_upi_date ON raw_upi_transactions(date(timestamp));
+
+-- Indexes for clean_upi_transactions
+CREATE INDEX IF NOT EXISTS idx_clean_upi_event_time ON clean_upi_transactions(event_time);
+CREATE INDEX IF NOT EXISTS idx_clean_upi_status ON clean_upi_transactions(status);
+CREATE INDEX IF NOT EXISTS idx_clean_upi_payee ON clean_upi_transactions(payee);
+CREATE INDEX IF NOT EXISTS idx_clean_upi_date ON clean_upi_transactions(date(event_time));
+
+-- Indexes for daily_upi_summary
+CREATE INDEX IF NOT EXISTS idx_daily_summary_date ON daily_upi_summary(date);
+
+-- Indexes for merchant_upi_summary
+CREATE INDEX IF NOT EXISTS idx_merchant_summary_date ON merchant_upi_summary(date);
+CREATE INDEX IF NOT EXISTS idx_merchant_summary_merchant ON merchant_upi_summary(merchant);
