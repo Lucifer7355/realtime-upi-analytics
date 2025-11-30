@@ -83,6 +83,8 @@ webserver_config.py
 # Flink
 flink-jobs/*.jar
 flink-jobs/*.zip
+FlinkJobs/target/
+FlinkJobs/*.jar
 
 # Temporary files
 *.tmp
