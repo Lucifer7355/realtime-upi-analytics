@@ -1,0 +1,274 @@
+{
+  "id": null,
+  "title": "UPI Analytics \u2014 Full Auto Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Real-Time Transactions Per Minute",
+      "type": "timeseries",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT date_trunc('minute', event_time) AS time, COUNT(*)\n            FROM clean_upi_transactions\n            WHERE $__timeFilter(event_time)\n            GROUP BY 1 ORDER BY 1;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Success / Failed / Pending (Live)",
+      "type": "piechart",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT status, COUNT(*)\n            FROM clean_upi_transactions\n            WHERE $__timeFilter(event_time)\n            GROUP BY status;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "id": 3,
+      "title": "Failures Per Minute (Spike Detector)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT date_trunc('minute', event_time) AS time,\n                   SUM(CASE WHEN status='FAILED' THEN 1 ELSE 0 END)\n            FROM clean_upi_transactions\n            WHERE $__timeFilter(event_time)\n            GROUP BY 1 ORDER BY 1;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      }
+    },
+    {
+      "id": 4,
+      "title": "UPI Transactions by Bank (payer handle)",
+      "type": "barchart",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT split_part(payer, '@', 2) AS bank,\n                   COUNT(*)\n            FROM clean_upi_transactions\n            WHERE $__timeFilter(event_time)\n            GROUP BY 1 ORDER BY COUNT(*) DESC LIMIT 10;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      }
+    },
+    {
+      "id": 5,
+      "title": "Daily Total Transactions",
+      "type": "timeseries",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT date AS time, total_txns\n            FROM daily_upi_summary\n            WHERE $__timeFilter(date)\n            ORDER BY date;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      }
+    },
+    {
+      "id": 6,
+      "title": "Daily Success vs Failed vs Pending",
+      "type": "timeseries",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT date AS time,\n                   success_txns,\n                   failed_txns,\n                   pending_txns\n            FROM daily_upi_summary\n            WHERE $__timeFilter(date)\n            ORDER BY date;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      }
+    },
+    {
+      "id": 7,
+      "title": "Daily Total Amount Processed",
+      "type": "timeseries",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT date AS time, total_amount\n            FROM daily_upi_summary\n            WHERE $__timeFilter(date)\n            ORDER BY date;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 48
+      }
+    },
+    {
+      "id": 8,
+      "title": "Top 10 Merchants (Today)",
+      "type": "barchart",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT merchant, SUM(total_txns)\n            FROM merchant_upi_summary\n            WHERE date = CURRENT_DATE\n            GROUP BY merchant\n            ORDER BY SUM(total_txns) DESC\n            LIMIT 10;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 56
+      }
+    },
+    {
+      "id": 9,
+      "title": "Merchant Transaction Trend",
+      "type": "timeseries",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT date AS time, SUM(total_txns)\n            FROM merchant_upi_summary\n            WHERE $__timeFilter(date)\n            GROUP BY date\n            ORDER BY date;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 64
+      }
+    },
+    {
+      "id": 10,
+      "title": "Merchant Amount Trend",
+      "type": "timeseries",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT date AS time, SUM(amount)\n            FROM merchant_upi_summary\n            WHERE $__timeFilter(date)\n            GROUP BY date\n            ORDER BY date;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 72
+      }
+    },
+    {
+      "id": 11,
+      "title": "Hourly Transaction Heatmap",
+      "type": "heatmap",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT \n                date_trunc('hour', event_time) AS time,\n                COUNT(*) AS volume\n            FROM clean_upi_transactions\n            WHERE $__timeFilter(event_time)\n            GROUP BY 1 ORDER BY 1;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 80
+      }
+    },
+    {
+      "id": 12,
+      "title": "Hourly Amount Heatmap",
+      "type": "heatmap",
+      "datasource": {
+        "type": "postgres",
+        "uid": "nytfOFZvz"
+      },
+      "targets": [
+        {
+          "rawSql": "\n            SELECT \n                date_trunc('hour', event_time) AS time,\n                SUM(amount) AS total_amount\n            FROM clean_upi_transactions\n            WHERE $__timeFilter(event_time)\n            GROUP BY 1 ORDER BY 1;\n            ",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 88
+      }
+    }
+  ]
+}

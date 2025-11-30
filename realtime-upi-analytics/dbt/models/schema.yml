@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: stg_upi_transactions
+    columns:
+      - name: txn_id
+        tests: [not_null]
+      - name: payer
+      - name: payee
+      - name: amount
+      - name: status
+      - name: timestamp
+
+  - name: fact_upi_aggregates
+    columns:
+      - name: txn_date
+        tests: [not_null]
+      - name: total_txns
+      - name: total_amount
+      - name: success_rate
